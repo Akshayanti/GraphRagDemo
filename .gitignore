@@ -1,0 +1,8 @@
+.idea
+.venv
+data/filtered_jsons
+data/json/*.json
+data/text/*.txt
+.env
+*_json.txt
+graph_store.pkl

@@ -1,0 +1,14 @@
+networkx~=3.2.1
+plotly~=6.0.0
+tqdm~=4.67.1
+langchain~=0.3.19
+python-dotenv~=1.0.1
+langchain-community~=0.3.17
+langchain-core~=0.3.36
+langchain-experimental~=0.3.4
+langchain_ollama
+scipy
+numpy
+pandas
+matplotlib
+black
