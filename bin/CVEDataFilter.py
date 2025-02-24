@@ -69,7 +69,7 @@ class CVEDataFilter:
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(out_data, f, indent=2)
 
-    def process_files(self):
+    def filter_jsons(self):
         input_files = glob.glob(os.path.join(self.input_directory, "*.json"))
         for input_file in tqdm(input_files, desc="Compressing Original JSONs"):
             output_file = os.path.join(

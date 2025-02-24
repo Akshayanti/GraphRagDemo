@@ -24,11 +24,12 @@ class KnowledgeBaseCreator:
         logging.basicConfig(level=logging.INFO)
 
     def create_knowledge_base(self):
-        graph_documents = self.processor.convert()
+        graph_documents = self.processor.process()
 
         for graph_document in tqdm.tqdm(
             graph_documents, desc="Creating Knowledge Base"
         ):
+            logging.debug("\nProcessing New Graph Document")
             node_id = graph_document.metadata.get("id", "unknown")
             logging.debug(
                 f"Adding node: {node_id} with metadata: {graph_document.metadata}"
@@ -66,8 +67,8 @@ class KnowledgeBaseCreator:
                 self.graph_store.add_edge(node_id, problemtype, relation="problem_type")
 
     def pickle_graph_store(self, file_path: str):
-        with open(file_path, "wb") as f:
-            pickle.dump(self.graph_store, f)
+        with open(file_path, "wb") as ofile:
+            pickle.dump(self.graph_store, ofile)
 
     def get_graph(self):
         return self.graph_store

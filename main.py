@@ -12,18 +12,23 @@ def main(input_directory, output_directory):
     data_filter = CVEDataFilter(
         input_directory=input_directory, output_directory=output_directory
     )
-    data_filter.process_files()
+    data_filter.filter_jsons()
     latest_cves = list(data_filter.get_latest_cve_ids())
+    doc = (
+        latest_cves[0] if latest_cves != [] else list(data_filter.get_all_cve_ids())[0]
+    )
 
     # Step 2: Process the filtered data and create the knowledge base
     kb_creator = KnowledgeBaseCreator(output_directory=output_directory, model=model)
     kb_creator.create_knowledge_base()
     kb_creator.pickle_graph_store(graph_file)
-    graph_chain = kb_creator.get_graph_chain()
-    simple_qa_chain = kb_creator.get_simple_chain()
-    doc = latest_cves[0]
+
+    # Step 3: Test the knowledge base
     question = f"Tell me about the vulnerability: {doc}"
-    result_before = simple_qa_chain.run({"query": question})
+
+    result_before = kb_creator.get_simple_chain().run({"query": question})
+
+    graph_chain = kb_creator.get_graph_chain()
     result_after = graph_chain.run(
         {"query": question, "context": kb_creator.get_graph()}
     )
@@ -36,10 +41,6 @@ def main(input_directory, output_directory):
     print(result_after)
     print("**************** AFTER GRAPHING (Best Performance): *****************")
     print(result_after_bp)
-    with open("before_json.txt", "w") as f:
-        f.write(result_before)
-    with open("after_json.txt", "w") as f:
-        f.write(result_after)
 
 
 if __name__ == "__main__":
