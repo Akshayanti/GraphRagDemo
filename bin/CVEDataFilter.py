@@ -25,22 +25,43 @@ class CVEDataFilter:
                 self.all_cve_ids.add(cve_id)
                 if "2024" in input_path:
                     self.cve_ids.add(cve_id)
-            description_data = item.get("cve", {}).get("description", {}).get("description_data", [])
-            description = description_data[0].get("value", "No description") if description_data else "No description"
-            impact = item.get("impact", {}).get("baseMetricV3", {}).get("cvssV3", {}).get("baseScore", "N/A")
+            description_data = (
+                item.get("cve", {}).get("description", {}).get("description_data", [])
+            )
+            description = (
+                description_data[0].get("value", "No description")
+                if description_data
+                else "No description"
+            )
+            impact = (
+                item.get("impact", {})
+                .get("baseMetricV3", {})
+                .get("cvssV3", {})
+                .get("baseScore", "N/A")
+            )
             published_date = item.get("publishedDate", "Unknown")
-            assigner = item.get("cve", {}).get("CVE_data_meta", {}).get("ASSIGNER", "Unknown")
-            problemtype_data = item.get("cve", {}).get("problemtype", {}).get("problemtype_data", [])
-            problemtype_descriptions = [ptype.get("description", [{}])[0].get("value", "Unknown") for ptype in problemtype_data if ptype.get("description")]
+            assigner = (
+                item.get("cve", {}).get("CVE_data_meta", {}).get("ASSIGNER", "Unknown")
+            )
+            problemtype_data = (
+                item.get("cve", {}).get("problemtype", {}).get("problemtype_data", [])
+            )
+            problemtype_descriptions = [
+                ptype.get("description", [{}])[0].get("value", "Unknown")
+                for ptype in problemtype_data
+                if ptype.get("description")
+            ]
 
-            filtered_items.append({
-                "cve_id": cve_id,
-                "description": description,
-                "impact_score": impact,
-                "published_date": published_date,
-                "assigner": assigner,
-                "problemtype_descriptions": problemtype_descriptions
-            })
+            filtered_items.append(
+                {
+                    "cve_id": cve_id,
+                    "description": description,
+                    "impact_score": impact,
+                    "published_date": published_date,
+                    "assigner": assigner,
+                    "problemtype_descriptions": problemtype_descriptions,
+                }
+            )
 
         out_data = {"CVEs": filtered_items}
 
@@ -51,7 +72,9 @@ class CVEDataFilter:
     def process_files(self):
         input_files = glob.glob(os.path.join(self.input_directory, "*.json"))
         for input_file in tqdm(input_files, desc="Compressing Original JSONs"):
-            output_file = os.path.join(self.output_directory, f"compressed-{os.path.basename(input_file)}")
+            output_file = os.path.join(
+                self.output_directory, f"compressed-{os.path.basename(input_file)}"
+            )
             self.filter_cve_data(input_file, output_file)
 
     def get_latest_cve_ids(self):

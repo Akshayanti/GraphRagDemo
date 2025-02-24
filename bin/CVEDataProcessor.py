@@ -4,6 +4,7 @@ import os
 from typing import List, Dict
 from langchain.schema import Document
 
+
 class CVEDataProcessor:
     def __init__(self, output_directory: str):
         self.output_directory = output_directory
@@ -12,7 +13,7 @@ class CVEDataProcessor:
         json_files = glob.glob(os.path.join(self.output_directory, "*.json"))
         documents = []
         for json_file in json_files:
-            with open(json_file, 'r') as file:
+            with open(json_file, "r") as file:
                 data = json.load(file)
                 documents.append(data)
         return documents
@@ -22,7 +23,9 @@ class CVEDataProcessor:
         for doc in documents:
             for cve in doc.get("CVEs", []):
                 cve_id = cve.get("cve_id", "")
-                description = cve.get("description", "").replace("\n", " ").replace("\r", " ")
+                description = (
+                    cve.get("description", "").replace("\n", " ").replace("\r", " ")
+                )
                 impact = cve.get("impact_score", "")
                 published_date = cve.get("published_date", "")
                 assigner = cve.get("assigner", "")
@@ -33,7 +36,7 @@ class CVEDataProcessor:
                     "Impact": impact,
                     "PublishedDate": published_date,
                     "Assigner": assigner,
-                    "ProblemType": problemtype_descriptions
+                    "ProblemType": problemtype_descriptions,
                 }
                 graph_document = Document(page_content=description, metadata=metadata)
                 graph_documents.append(graph_document)
