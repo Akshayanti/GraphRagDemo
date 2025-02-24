@@ -73,7 +73,7 @@ class KnowledgeBaseCreator:
     def get_graph(self):
         return self.graph_store
 
-    def get_good_graph(self):
+    def get_best_graph(self):
         with open("results/graph_store.pkl", "rb") as f:
             self.graph_store = pickle.load(f)
         return self.graph_store
@@ -81,6 +81,13 @@ class KnowledgeBaseCreator:
     def get_graph_chain(self):
         return GraphQAChain.from_llm(
             llm=self.llm, graph=NetworkxEntityGraph(self.graph_store), verbose=True
+        )
+
+    def get_best_graph_chain(self):
+        return GraphQAChain.from_llm(
+            llm=self.llm,
+            graph=NetworkxEntityGraph(self.get_best_graph()),
+            verbose=True,
         )
 
     def get_simple_chain(self):

@@ -4,10 +4,7 @@ from bin.CVEDataFilter import CVEDataFilter
 from bin.KnowledgeBaseCreator import KnowledgeBaseCreator
 
 
-def main(input_directory, output_directory):
-    model = "llama3.2:1b"
-    graph_file = "graph_store.pkl"
-
+def get_kb(input_directory, output_directory, model="llama3.2:1b"):
     # Step 1: Filter the data
     data_filter = CVEDataFilter(
         input_directory=input_directory, output_directory=output_directory
@@ -20,27 +17,45 @@ def main(input_directory, output_directory):
 
     # Step 2: Process the filtered data and create the knowledge base
     kb_creator = KnowledgeBaseCreator(output_directory=output_directory, model=model)
-    kb_creator.create_knowledge_base()
-    kb_creator.pickle_graph_store(graph_file)
+    return kb_creator, doc
+
+
+def main(input_directory, output_directory):
+    graph_file = "graph_store.pkl"
+    kb, cve = get_kb(input_directory, output_directory)
+    kb.create_knowledge_base()
+    kb.pickle_graph_store(graph_file)
 
     # Step 3: Test the knowledge base
-    question = f"Tell me about the vulnerability: {doc}"
+    evaluate(kb, cve)
+    print()
 
-    result_before = kb_creator.get_simple_chain().run({"query": question})
+    # Demo Time
+    while True:
+        cve = input("Enter a CVE ID (CVE-YYYY-XXXX): ")
+        evaluate(kb, cve)
+        print()
 
-    graph_chain = kb_creator.get_graph_chain()
-    result_after = graph_chain.run(
-        {"query": question, "context": kb_creator.get_graph()}
+
+def evaluate(kb, cve):
+    question = f"Tell me about the vulnerability: {cve}"
+
+    graph_chain = kb.get_graph_chain()
+    best_graph_chain = kb.get_best_graph_chain()
+
+    result_before = kb.get_simple_chain().run({"query": question})
+    result_after = graph_chain.run({"query": question, "context": kb.get_graph()})
+    result_after_bp = best_graph_chain.run(
+        {"query": question, "context": kb.get_best_graph()}
     )
-    result_after_bp = graph_chain.run(
-        {"query": question, "context": kb_creator.get_good_graph()}
-    )
+
     print("**************** BEFORE GRAPHING: ****************")
     print(result_before)
     print("**************** AFTER GRAPHING: *****************")
     print(result_after)
     print("**************** AFTER GRAPHING (Best Performance): *****************")
     print(result_after_bp)
+    print("***********************************************************************")
 
 
 if __name__ == "__main__":
