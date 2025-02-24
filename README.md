@@ -25,6 +25,7 @@ The dataset can be found [here](https://nvd.nist.gov/vuln/data-feeds#APIS).
 
 - Python 3.x
 - Required Python packages (install using `pip install -r requirements.txt`)
+- Ollama Installed on local machine, especially llama3.2:1b model (instructions [here](https://www.hostinger.com/tutorials/ollama-cli-tutorial#Setting_up_Ollama_in_the_CLI))
 
 ### Steps to Run the Project
 
