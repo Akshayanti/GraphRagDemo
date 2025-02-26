@@ -2,6 +2,7 @@ import logging
 import pickle
 
 import networkx as nx
+import ollama
 import tqdm
 from dotenv import load_dotenv
 from langchain.chains.llm import LLMChain
@@ -17,6 +18,7 @@ from bin.CVEDataProcessor import CVEDataProcessor
 class KnowledgeBaseCreator:
     def __init__(self, output_directory: str, model: str):
         load_dotenv()
+        self.download_models(model)
         self.llm = ChatOllama(model=model)
         self.llm_transformer = LLMGraphTransformer(llm=self.llm)
         self.graph_store = nx.DiGraph()
@@ -75,8 +77,11 @@ class KnowledgeBaseCreator:
 
     def get_best_graph(self):
         with open("results/graph_store.pkl", "rb") as f:
-            self.graph_store = pickle.load(f)
-        return self.graph_store
+            return pickle.load(f)
+
+    def download_models(self, modelname):
+        if modelname not in [x["model"] for x in ollama.list()["models"]]:
+            ollama.pull(model=modelname)
 
     def get_graph_chain(self):
         return GraphQAChain.from_llm(

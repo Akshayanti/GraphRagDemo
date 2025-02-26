@@ -6,3 +6,5 @@ data/text/*.txt
 .env
 *_json.txt
 graph_store.pkl
+**/__pycache__
+__pycache__
